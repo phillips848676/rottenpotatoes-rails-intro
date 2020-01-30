@@ -1,5 +1,6 @@
 class MoviesController < ApplicationController
-
+  
+  @@notSorted = true
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
   end
@@ -11,7 +12,17 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    if ( @@notSorted  )
+      @movies = Movie.all
+      @@notSorted = false
+    else
+      m = Movie.all
+      m.each do |item|
+        item.title = item.title + "P"
+      end
+      @movies = m
+      @@notSorted = true
+    end
   end
 
   def new
