@@ -13,15 +13,48 @@ class MoviesController < ApplicationController
 
   def index
     if ( @@notSorted  )
+      request.headers
       @movies = Movie.all
       @@notSorted = false
     else
-      m = Movie.all
-      m.each do |item|
-        item.title = item.title + "P"
+      sort = params[:titleSort]
+      @movies = Movie.all
+      # @movies[0].title = @movies[0].title + sort.class
+      if (sort.to_s == '1') 
+        m = Movie.all
+        mov = []
+        m.each do |item|
+          mov.push(item.title)
+        end
+        mov = mov.sort
+        sortedMovies = []
+        mov.each do |item| 
+          m.each do |element| 
+            if ( item == element.title)
+              sortedMovies.push(element)
+            end
+          end
+        end
+        @movies = sortedMovies
+        @@notSorted = true
+      elsif (sort.to_s == '0')
+        m = Movie.all
+        mov = []
+        m.each do |item|
+          mov.push(item.release_date)
+        end
+        mov = mov.sort
+        sortedMovies = []
+        mov.each do |item| 
+          m.each do |element| 
+            if ( item == element.release_date)
+              sortedMovies.push(element)
+            end
+          end
+        end
+        @movies = sortedMovies
+        @@notSorted = true
       end
-      @movies = m
-      @@notSorted = true
     end
   end
 

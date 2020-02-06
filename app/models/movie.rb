@@ -1,6 +1,5 @@
 class Movie < ActiveRecord::Base
-    
-    def sort 
+    def getRatings
         
     end
 end
