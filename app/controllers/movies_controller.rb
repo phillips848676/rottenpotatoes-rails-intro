@@ -1,6 +1,8 @@
 class MoviesController < ApplicationController
   
-  @@notSorted = true
+  @@sortedTitle = false;
+  @@sortedDates = false;
+  
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
   end
@@ -12,16 +14,23 @@ class MoviesController < ApplicationController
   end
 
   def index
-    if ( @@notSorted  )
-      request.headers
-      @movies = Movie.all
-      @@notSorted = false
-    else
+    @all_ratings = Movie.individualRatings
+    @collectedCheckBoxes = @all_ratings
+    @movies = Movie.all
+    
+    if ( params[:ratings] )
+      @collectedCheckBoxes = params[:ratings].collect {|key,value| key }
+      @movies = Movie.with_ratings @collectedCheckBoxes
+    end
+    
+    # if ( @@notSorted)
+    #   request.headers
+    #   @movies = Movie.all
+    #   @@notSorted = false
+    if (params[:titleSort])
       sort = params[:titleSort]
-      @movies = Movie.all
-      # @movies[0].title = @movies[0].title + sort.class
-      if (sort.to_s == '1') 
-        m = Movie.all
+      if (sort.to_s == '1' && !@@sortedTitle) 
+        m = @movies
         mov = []
         m.each do |item|
           mov.push(item.title)
@@ -36,9 +45,12 @@ class MoviesController < ApplicationController
           end
         end
         @movies = sortedMovies
-        @@notSorted = true
-      elsif (sort.to_s == '0')
-        m = Movie.all
+        @@sortedTitle = true
+      elsif (sort.to_s == '1' && @@sortedTitle)
+        @@sortedTitle = false
+        @movies = Movie.all
+      elsif (sort.to_s == '0' && !@@sortedDates)
+        m = @movies
         mov = []
         m.each do |item|
           mov.push(item.release_date)
@@ -53,7 +65,10 @@ class MoviesController < ApplicationController
           end
         end
         @movies = sortedMovies
-        @@notSorted = true
+        @@sortedDates = true
+      elsif (sort.to_s == '0' && @@sortedDates)
+        @@sortedDates = false
+        @movies = Movie.all  
       end
     end
   end
