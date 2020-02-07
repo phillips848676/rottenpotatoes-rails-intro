@@ -1,7 +1,10 @@
 class MoviesController < ApplicationController
-  
+  before_filter :look_up_session
   @@sortedTitle = false;
   @@sortedDates = false;
+  
+  def look_up_session
+  end
   
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
@@ -15,21 +18,28 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = Movie.individualRatings
-    @collectedCheckBoxes = @all_ratings
+    @collectedCheckBoxes = session[:rating]
     @movies = Movie.all
     
-    if ( params[:ratings] )
-      @collectedCheckBoxes = params[:ratings].collect {|key,value| key }
+    if ( params[:ratings] || session[:ratingHash])
+      if (params[:ratings])
+        @collectedCheckBoxes = params[:ratings].collect {|key,value| key }
+      elsif (session[:ratingHash])
+        @collectedCheckBoxes = session[:ratingHash].collect {|key,value| key }
+      end
+        
       @movies = Movie.with_ratings @collectedCheckBoxes
+      session[:rating] = @collectedCheckBoxes
+      session[:ratingHash] = params[:ratings]
     end
-    
-    # if ( @@notSorted)
-    #   request.headers
-    #   @movies = Movie.all
-    #   @@notSorted = false
-    if (params[:titleSort])
-      sort = params[:titleSort]
-      if (sort.to_s == '1' && !@@sortedTitle) 
+    if (params[:titleSort] || session[:sortHash])
+      if (params[:titleSort])
+        sort = params[:titleSort]
+      elsif (session[:sortHash])
+        sort = session[:sortHash]
+        @@sortedTitle = false
+      end
+      if ( (sort.to_s == '1') && !@@sortedTitle ) 
         m = @movies
         mov = []
         m.each do |item|
@@ -46,10 +56,11 @@ class MoviesController < ApplicationController
         end
         @movies = sortedMovies
         @@sortedTitle = true
-      elsif (sort.to_s == '1' && @@sortedTitle)
+        session[:sort] = '1'
+      elsif(sort.to_s == '1' && @@sortedTitle)
         @@sortedTitle = false
         @movies = Movie.all
-      elsif (sort.to_s == '0' && !@@sortedDates)
+      elsif((sort.to_s == '0' && !@@sortedDates)  )
         m = @movies
         mov = []
         m.each do |item|
@@ -66,11 +77,14 @@ class MoviesController < ApplicationController
         end
         @movies = sortedMovies
         @@sortedDates = true
+        session[:sort] = '0'
       elsif (sort.to_s == '0' && @@sortedDates)
         @@sortedDates = false
         @movies = Movie.all  
       end
+      session[:sortHash] = params[:titleSort]
     end
+    
   end
 
   def new
