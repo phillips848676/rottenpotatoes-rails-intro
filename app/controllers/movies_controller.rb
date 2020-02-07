@@ -179,9 +179,9 @@ class MoviesController < ApplicationController
       end
     end
     
-    # @isSortedTitle = @@isTitleSorted
-    # @isSortedDate = @@isDateSorted
-    # session[:sortHash] = params[:titleSort]
+    @isSortedTitle = @@isTitleSorted
+    @isSortedDate = @@isDateSorted
+    session[:sortHash] = params[:titleSort]
     
   end
 
