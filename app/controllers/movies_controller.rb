@@ -19,7 +19,7 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = Movie.individualRatings
-    @collectedCheckBoxes = session[:rating]
+    @collectedCheckBoxes = (session[:rating] ) ? session[:rating]: @all_ratings
     @movies = Movie.all
 
     
