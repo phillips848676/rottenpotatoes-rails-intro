@@ -31,12 +31,45 @@ class MoviesController < ApplicationController
         @collectedCheckBoxes = session[:ratingHash].collect {|key,value| key }
       end
       @movies = Movie.with_ratings @collectedCheckBoxes
+      if ( @@isTitleSorted)
+        m = @movies
+        mov = []
+        m.each do |item|
+          mov.push(item.title)
+        end
+        mov = mov.sort
+        sortedMovies = []
+        mov.each do |item| 
+          m.each do |element| 
+            if ( item == element.title)
+              sortedMovies.push(element)
+            end
+          end
+        end
+        @movies = sortedMovies
+      elsif ( @@isDateSorted)
+        m = @movies
+        mov = []
+        m.each do |item|
+          mov.push(item.release_date)
+        end
+        mov = mov.sort
+        sortedMovies = []
+        mov.each do |item| 
+          m.each do |element| 
+            if ( item == element.release_date)
+              sortedMovies.push(element)
+            end
+          end
+        end
+        @movies = sortedMovies
+      end
       session[:rating] = @collectedCheckBoxes
       session[:ratingHash] = params[:ratings]
-      #@movies = mov
     end
-    # 
-    if (params[:titleSort] && session[:sortHash] )
+
+    if (params[:titleSort] || session[:sortHash] )
+      
       if (params[:titleSort])
         sort = params[:titleSort]
       elsif (session[:sortHash])
@@ -48,30 +81,84 @@ class MoviesController < ApplicationController
         end
       end
       if ( sort.to_s == '1' && !@@isTitleSorted )
-        @movies = Movie.sort_diff true
-        # m.select{|element| mov.include?(element)}
+        m = @movies
+        mov = []
+        m.each do |item|
+          mov.push(item.title)
+        end
+        mov = mov.sort
+        sortedMovies = []
+        mov.each do |item| 
+          m.each do |element| 
+            if ( item == element.title)
+              sortedMovies.push(element)
+            end
+          end
+        end
+        @movies = sortedMovies
         @@isTitleSorted = true
       elsif (sort.to_s == '1' && @@isTitleSorted)
         if (@@isDateSorted)
-          @movies = Movie.sort_diff false
+          m = @movies
+          mov = []
+          m.each do |item|
+            mov.push(item.release_date)
+          end
+          mov = mov.sort
+          sortedMovies = []
+          mov.each do |item| 
+            m.each do |element| 
+              if ( item == element.release_date)
+                sortedMovies.push(element)
+              end
+            end
+          end
+          @movies = sortedMovies
         else 
           @movies = Movie.all
         end
         @@isTitleSorted = false
       elsif (sort.to_s == '0' && !@@isDateSorted)
-        @movies = Movie.sort_diff false
+        m = @movies
+        mov = []
+        m.each do |item|
+          mov.push(item.release_date)
+        end
+        mov = mov.sort
+        sortedMovies = []
+        mov.each do |item| 
+          m.each do |element| 
+            if ( item == element.release_date)
+              sortedMovies.push(element)
+            end
+          end
+        end
+        @movies = sortedMovies
         @@isDateSorted = true
       elsif (sort.to_s == '0' && @@isDateSorted )
         if ( @@isTitleSorted)
-          @movies = Movie.sort_diff true
+          m = @movies
+          mov = []
+          m.each do |item|
+            mov.push(item.title)
+          end
+          mov = mov.sort
+          sortedMovies = []
+          mov.each do |item| 
+            m.each do |element| 
+              if ( item == element.title)
+                sortedMovies.push(element)
+              end
+            end
+          end
+          @movies = sortedMovies
         else
           @movies = Movie.all
         end
         @@isDateSorted = false
       end
+      #@movies[0].title = @movies[0].title + "P"
     end
-    
-    # @movies[0].title = @movies[0].title + params[:ratings].to_s
     @isSortedTitle = @@isTitleSorted
     @isSortedDate = @@isDateSorted
     session[:sortHash] = params[:titleSort]
