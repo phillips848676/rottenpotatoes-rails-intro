@@ -18,8 +18,8 @@ class MoviesController < ApplicationController
   end
 
   def index
-    # @all_ratings = Movie.individualRatings
-    # @collectedCheckBoxes = session[:rating]
+    @all_ratings = Movie.individualRatings
+    @collectedCheckBoxes = session[:rating]
     @movies = Movie.all
 
     
