@@ -6,9 +6,15 @@ class Movie < ActiveRecord::Base
     end
     
     def self.with_ratings diffRatings
-        # where(id: [array of values])
-        
         Movie.where(rating: diffRatings)
+    end
+    
+    def self.sort_diff isTitle
+        if (isTitle )
+            Movie.order(:title)
+        elsif (!isTitle)
+            Movie.order(:release_date)
+        end
         
     end
 end

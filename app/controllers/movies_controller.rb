@@ -1,10 +1,12 @@
 class MoviesController < ApplicationController
-  before_filter :look_up_session
-  @@sortedTitle = false;
-  @@sortedDates = false;
+
+  @@isTitleSorted = false
+  @@isDateSorted = false
+  @isSortedDate = false
+  @isSortedTitle = false
   
-  def look_up_session
-  end
+  # def look_up_session
+  # end
   
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
@@ -20,6 +22,7 @@ class MoviesController < ApplicationController
     @all_ratings = Movie.individualRatings
     @collectedCheckBoxes = session[:rating]
     @movies = Movie.all
+    mov = []
     
     if ( params[:ratings] || session[:ratingHash])
       if (params[:ratings])
@@ -27,63 +30,51 @@ class MoviesController < ApplicationController
       elsif (session[:ratingHash])
         @collectedCheckBoxes = session[:ratingHash].collect {|key,value| key }
       end
-        
       @movies = Movie.with_ratings @collectedCheckBoxes
       session[:rating] = @collectedCheckBoxes
       session[:ratingHash] = params[:ratings]
+      #@movies = mov
     end
-    if (params[:titleSort] || session[:sortHash])
+    # 
+    if (params[:titleSort] && session[:sortHash] )
       if (params[:titleSort])
         sort = params[:titleSort]
       elsif (session[:sortHash])
         sort = session[:sortHash]
-        @@sortedTitle = false
+        if (sort.to_s == '1')
+          @@isTitleSorted = false;
+        elsif (sort.to_s == '0')
+          @@isDateSorted = false
+        end
       end
-      if ( (sort.to_s == '1') && !@@sortedTitle ) 
-        m = @movies
-        mov = []
-        m.each do |item|
-          mov.push(item.title)
+      if ( sort.to_s == '1' && !@@isTitleSorted )
+        @movies = Movie.sort_diff true
+        # m.select{|element| mov.include?(element)}
+        @@isTitleSorted = true
+      elsif (sort.to_s == '1' && @@isTitleSorted)
+        if (@@isDateSorted)
+          @movies = Movie.sort_diff false
+        else 
+          @movies = Movie.all
         end
-        mov = mov.sort
-        sortedMovies = []
-        mov.each do |item| 
-          m.each do |element| 
-            if ( item == element.title)
-              sortedMovies.push(element)
-            end
-          end
+        @@isTitleSorted = false
+      elsif (sort.to_s == '0' && !@@isDateSorted)
+        @movies = Movie.sort_diff false
+        @@isDateSorted = true
+      elsif (sort.to_s == '0' && @@isDateSorted )
+        if ( @@isTitleSorted)
+          @movies = Movie.sort_diff true
+        else
+          @movies = Movie.all
         end
-        @movies = sortedMovies
-        @@sortedTitle = true
-        session[:sort] = '1'
-      elsif(sort.to_s == '1' && @@sortedTitle)
-        @@sortedTitle = false
-        @movies = Movie.all
-      elsif((sort.to_s == '0' && !@@sortedDates)  )
-        m = @movies
-        mov = []
-        m.each do |item|
-          mov.push(item.release_date)
-        end
-        mov = mov.sort
-        sortedMovies = []
-        mov.each do |item| 
-          m.each do |element| 
-            if ( item == element.release_date)
-              sortedMovies.push(element)
-            end
-          end
-        end
-        @movies = sortedMovies
-        @@sortedDates = true
-        session[:sort] = '0'
-      elsif (sort.to_s == '0' && @@sortedDates)
-        @@sortedDates = false
-        @movies = Movie.all  
+        @@isDateSorted = false
       end
-      session[:sortHash] = params[:titleSort]
     end
+    
+    # @movies[0].title = @movies[0].title + params[:ratings].to_s
+    @isSortedTitle = @@isTitleSorted
+    @isSortedDate = @@isDateSorted
+    session[:sortHash] = params[:titleSort]
     
   end
 

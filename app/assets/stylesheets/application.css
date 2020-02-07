@@ -18,3 +18,7 @@
 #movies .hilite {
   background-color: yellow;
 }
+
+#movies .none {
+    background-color:none;
+}
