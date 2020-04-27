@@ -15,6 +15,7 @@ class MoviesController < ApplicationController
     id = params[:id] # retrieve movie ID from URI route
     @movie = Movie.find(id) # look up movie by unique ID
     # will render app/views/movies/show.<extension> by default
+    logger.debug(params)
   end
 
   def index
@@ -22,13 +23,20 @@ class MoviesController < ApplicationController
     @collectedCheckBoxes = (session[:rating] ) ? session[:rating]: @all_ratings
     @movies = Movie.all
     @sessSort = (session[:isSorted]) ? session[:isSorted]: false
-
+    logger.debug(session.to_hash)
+    logger.debug("break")
+    logger.debug(params.to_hash)
     
     if ( params[:ratings] || session[:ratingHash] )
+      
       if (params[:ratings])
         @collectedCheckBoxes = params[:ratings].collect {|key,value| key }
+        session[:ratingHash] = params[:ratings]
       elsif (session[:ratingHash])
+        logger.debug(session[:ratingHash])
+        logger.debug("-------------")
         @collectedCheckBoxes = session[:ratingHash].collect {|key,value| key }
+
       end
       @movies = Movie.with_ratings @collectedCheckBoxes
       if ( @@isTitleSorted)
@@ -65,15 +73,14 @@ class MoviesController < ApplicationController
         @movies = sortedMovies
         
       end
-      session[:rating] = @collectedCheckBoxes
-      session[:ratingHash] = params[:ratings]
-      session[:sortHash] = params[:titleSort]
+
     end
 
     
     if (params[:titleSort] || (session[:sortHash]  && !@sessSort))
       if (params[:titleSort])
         sort = params[:titleSort]
+        session[:sortHash] = params[:titleSort]
       elsif (session[:sortHash])
         sort = session[:sortHash]
         if (sort.to_s == '1')
@@ -181,7 +188,9 @@ class MoviesController < ApplicationController
     
     @isSortedTitle = @@isTitleSorted
     @isSortedDate = @@isDateSorted
-    session[:sortHash] = params[:titleSort]
+    
+    session[:rating] = @collectedCheckBoxes
+
     
   end
 
