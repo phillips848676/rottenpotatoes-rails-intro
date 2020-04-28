@@ -190,8 +190,6 @@ class MoviesController < ApplicationController
     @isSortedDate = @@isDateSorted
     
     session[:rating] = @collectedCheckBoxes
-
-    
   end
 
   def new
