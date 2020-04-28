@@ -23,9 +23,6 @@ class MoviesController < ApplicationController
     @collectedCheckBoxes = (session[:rating] ) ? session[:rating]: @all_ratings
     @movies = Movie.all
     @sessSort = (session[:isSorted]) ? session[:isSorted]: false
-    logger.debug(session.to_hash)
-    logger.debug("break")
-    logger.debug(params.to_hash)
     
     if ( params[:ratings] || session[:ratingHash] )
       
