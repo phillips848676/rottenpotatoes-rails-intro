@@ -1,9 +1,11 @@
 class SessionsController < ApplicationController
     # skip_before_filter :set_current_user
     def index
-        logger.debug(session.to_hash)
-        @current_user = Moviegoer.where(:uid =>session[:user_id])
-        logger.debug(@current_user.length)
+        if (session[:user_id])
+            @current_user = Moviegoer.where(:uid =>session[:user_id])
+        else
+            @current_user = Moviegoer.where(:uid => 0)
+        end
     end
     def create
         auth=request.env["omniauth.auth"]
