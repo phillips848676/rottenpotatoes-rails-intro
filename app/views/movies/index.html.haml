@@ -1,5 +1,8 @@
 -#  This file is app/views/movies/index.html.haml
-
+<br>
+= form_tag root_path, :id => 'homepage_form', :method => :get do
+  = submit_tag 'Back to homepage', :id => 'homepage_button',:class => 'btn btn-primary'
+<br>
 %h2 All Movies
 = form_tag movies_path, :id => 'ratings_form', :method => :get do
   Include:
