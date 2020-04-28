@@ -10,3 +10,4 @@ To start working on the Rails Intro homework, please follow [the instructions](i
 
 ## For extra credit!
 My issue on the original submission is when you would sort by title or date and then unsort and then click on more info go back it wouldn't follow the check marks.  I was able to fix this issue :)
+I believe I fixed all original issues.  My app does go to a homepage that requires you to login via Twitter! Thanks for everything!
